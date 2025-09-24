@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Transactions</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-light: #7f8c8d;
+            --border: #dfe6e9;
+            --danger: #ff6384;
+            --hover-bg: rgba(52, 152, 219, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #ffffff;
+            --text-light: #a0aec0;
+            --border: #404040;
+            --danger: #ff6384;
+            --hover-bg: rgba(52, 152, 219, 0.15);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            background-color: var(--card-bg);
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary);
+            background-color: var(--hover-bg);
+        }
+
+        .upload-section.drag-over {
+            border-color: var(--primary);
+            background: var(--hover-bg);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .preview-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        th {
+            background-color: var(--hover-bg);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .import-btn, .cancel-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .import-btn {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
+        }
+
+        .import-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .cancel-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 99, 132, 0.3);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--hover-bg);
+            transform: translateX(-5px);
+        }
+
+        .instructions {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            color: var(--text);
+            margin-top: 0;
+        }
+
+        .instructions ul {
+            color: var(--text);
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-menu {
+            position: relative;
+        }
+
+        .profile-icon {
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--text);
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .profile-icon:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text);
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .dropdown-item i {
+            font-size: 16px;
+            width: 20px;
+        }
+
+        .custom-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .custom-alert.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .custom-alert-content {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .custom-alert-content p {
+            margin: 0 0 20px;
+            color: var(--text);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .custom-alert-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .custom-alert-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .custom-alert-cancel {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .custom-alert-ok {
+            background: var(--primary);
+            color: white;
+        }
+
+        .custom-alert-cancel:hover,
+        .custom-alert-ok:hover {
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading-spinner {
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="main.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+
+        <div class="header">
+            <h1>Import Transactions</h1>
+            <div class="profile-menu">
+                <div class="profile-icon" id="profileIcon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" id="darkModeToggle">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark Mode</span>
+                    </div>
+                    <div class="dropdown-item" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>Instructions</h3>
+            <ul>
+                <li>Upload a PDF bank statement or Excel/CSV file</li>
+                <li>Review the extracted transactions</li>
+                <li>Adjust categories if needed</li>
+                <li>Click Import to add transactions to your dashboard</li>
+            </ul>
+        </div>
+
+        <div class="upload-section" id="dropZone">
+            <input type="file" id="fileInput" class="file-input" accept=".pdf,.xlsx,.xls,.csv">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                Choose File
+            </button>
+            <p id="fileName" style="margin-top: 10px; color: var(--text-light);"></p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Processing your file...</p>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                    </tr>
+                </thead>
+                <tbody id="previewBody"></tbody>
+            </table>
+
+            <div class="action-buttons">
+                <button class="cancel-btn" onclick="cancelImport()">Cancel</button>
+                <button class="import-btn" onclick="importTransactions()">Import Transactions</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="theme.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const loading = document.getElementById('loading');
+        const previewSection = document.getElementById('previewSection');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+
+            document.getElementById('fileName').textContent = file.name;
+            loading.style.display = 'block';
+            dropZone.style.display = 'none';
+
+            const fileType = file.name.split('.').pop().toLowerCase();
+            
+            if (fileType === 'pdf') {
+                handlePDFFile(file);
+            } else if (['xlsx', 'xls', 'csv'].includes(fileType)) {
+                handleExcelFile(file);
+            } else {
+                alert('Unsupported file format. Please upload a PDF, Excel, or CSV file.');
+                loading.style.display = 'none';
+                dropZone.style.display = 'block';
+                document.getElementById('fileInput').value = '';
+                document.getElementById('fileName').textContent = '';
+            }
+        }
+
+        async function handlePDFFile(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const transactions = await extractTransactionsFromPDF(pdf);
+                displayPreview(transactions);
+            } catch (error) {
+                console.error('Error processing PDF:', error);
+                alert('Error processing PDF. Please try again or use a different format.');
+                loading.style.display = 'none';
+                dropZone.style.display = 'block';
+                document.getElementById('fileInput').value = '';
+                document.getElementById('fileName').textContent = '';
+            }
+        }
+
+        async function handleExcelFile(file) {
+            try {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const transactions = extractTransactionsFromExcel(workbook);
+                        displayPreview(transactions);
+                    } catch (error) {
+                        console.error('Error processing Excel:', error);
+                        alert('Error processing Excel file. Please check the format and try again.');
+                        loading.style.display = 'none';
+                        dropZone.style.display = 'block';
+                        document.getElementById('fileInput').value = '';
+                        document.getElementById('fileName').textContent = '';
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } catch (error) {
+                console.error('Error reading file:', error);
+                alert('Error reading file. Please try again.');
+                loading.style.display = 'none';
+                dropZone.style.display = 'block';
+                document.getElementById('fileInput').value = '';
+                document.getElementById('fileName').textContent = '';
+            }
+        }
+
+        function extractTransactionsFromExcel(workbook) {
+            const transactions = [];
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const data = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: '' });
+
+            data.forEach((row, index) => {
+                console.log(`Processing row ${index}:`, row);
+                
+                const amount = parseFloat(row.Amount || row.amount || 0);
+                const description = row.Description || row.description || '';
+                const excelCategory = row.Category || row.category || '';
+                
+                let category = excelCategory;
+                if (!category || category.trim() === '') {
+                    category = detectCategory(description) || 'Others';
+                }
+
+                transactions.push({
+                    date: formatDate(row.Date || row.date || new Date()),
+                    description: description,
+                    type: amount >= 0 ? 'Income' : 'Expense',
+                    amount: Math.abs(amount),
+                    category: category
+                });
+            });
+
+            return transactions;
+        }
+
+        function detectCategory(description) {
+            description = description.toLowerCase();
+            
+            const categoryRules = {
+                'Salary': ['salary', 'payroll', 'wage', 'income', 'payment received'],
+                'Food': ['restaurant', 'food', 'grocery', 'swiggy', 'zomato', 'hotel', 'cafe', 'dining'],
+                'Transportation': ['uber', 'ola', 'fuel', 'petrol', 'diesel', 'auto', 'taxi', 'bus', 'train', 'metro'],
+                'Shopping': ['amazon', 'flipkart', 'myntra', 'mall', 'market', 'shop', 'store', 'retail'],
+                'Entertainment': ['movie', 'theatre', 'netflix', 'prime', 'hotstar', 'spotify', 'entertainment'],
+                'Bills': ['electricity', 'water', 'gas', 'internet', 'wifi', 'mobile', 'phone', 'bill', 'recharge'],
+                'Others': []
+            };
+
+            for (const [category, keywords] of Object.entries(categoryRules)) {
+                if (keywords.some(keyword => description.includes(keyword))) {
+                    return category;
+                }
+            }
+
+            return 'Others';
+        }
+
+        function formatDate(dateValue) {
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return dateValue;
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}/${month}/${year}`;
+        }
+
+        async function extractTransactionsFromPDF(pdf) {
+            const transactions = [];
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const text = textContent.items.map(item => item.str).join(' ');
+                
+                const pattern = /(\d{2}\/\d{2}\/\d{4})\s+([\w\s]+)\s+([-+]?\d+\.?\d*)/g;
+                let match;
+
+                while ((match = pattern.exec(text)) !== null) {
+                    const amount = parseFloat(match[3]);
+                    const description = match[2].trim();
+                    transactions.push({
+                        date: match[1],
+                        description: description,
+                        type: amount >= 0 ? 'Income' : 'Expense',
+                        amount: Math.abs(amount),
+                        category: detectCategory(description)
+                    });
+                }
+            }
+
+            return transactions;
+        }
+
+        function displayPreview(transactions) {
+            const previewBody = document.getElementById('previewBody');
+            previewBody.innerHTML = '';
+
+            const budgets = JSON.parse(localStorage.getItem('budgets')) || [];
+            let categories = budgets.map(budget => budget.name);
+            
+            const defaultCategories = [
+                'Salary',
+                'Food',
+                'Transportation',
+                'Shopping',
+                'Entertainment',
+                'Bills',
+                'Others',
+                'Uncategorized'
+            ];
+
+            transactions.forEach(transaction => {
+                if (transaction.category && 
+                    !categories.includes(transaction.category) && 
+                    !defaultCategories.includes(transaction.category)) {
+                    categories.push(transaction.category);
+                }
+            });
+
+            if (categories.length === 0) {
+                categories = defaultCategories;
+            } else {
+                defaultCategories.forEach(cat => {
+                    if (!categories.includes(cat)) {
+                        categories.push(cat);
+                    }
+                });
+            }
+
+            transactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.type}</td>
+                    <td>₹${transaction.amount.toFixed(2)}</td>
+                    <td>
+                        <select onchange="updateCategory(this)" class="category-select">
+                            ${categories.map(cat => `
+                                <option value="${cat}" ${cat === transaction.category ? 'selected' : ''}>
+                                    ${cat}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </td>
+                `;
+                previewBody.appendChild(row);
+            });
+
+            loading.style.display = 'none';
+            previewSection.classList.add('show');
+        }
+
+        function updateCategory(select) {
+            const row = select.closest('tr');
+            const transaction = {
+                date: row.cells[0].textContent,
+                description: row.cells[1].textContent,
+                type: row.cells[2].textContent,
+                amount: parseFloat(row.cells[3].textContent.replace('₹', '')),
+                category: select.value
+            };
+        }
+
+        function importTransactions() {
+            const rows = document.getElementById('previewBody').getElementsByTagName('tr');
+            const transactions = Array.from(rows).map(row => ({
+                date: row.cells[0].textContent,
+                description: row.cells[1].textContent,
+                type: row.cells[2].textContent,
+                amount: parseFloat(row.cells[3].textContent.replace('₹', '')),
+                category: row.cells[4].querySelector('select').value
+            }));
+
+            const existingTransactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const allTransactions = [...existingTransactions, ...transactions];
+            localStorage.setItem('transactions', JSON.stringify(allTransactions));
+            window.location.href = 'main.html';
+        }
+
+        function cancelImport() {
+            previewSection.classList.remove('show');
+            document.getElementById('dropZone').style.display = 'block';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileName').textContent = '';
+        }
+
+        function applyTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        applyTheme();
+
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                applyTheme();
+            }
+        });
+    </script>
+</body>
+</html>

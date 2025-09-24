@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BudgetTracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <!-- Chart.js Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body>
+  <div class="container">🏈
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <img src="logoo.png" alt="Logo">
+        <span>Expense Ease</span>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="budget.html"><i class="fas fa-piggy-bank"></i> Budgets</a></li>
+          <li><a href="expense.html"><i class="fas fa-file-invoice-dollar"></i> Expenses</a></li>
+          <li><a href="transaction.html"><i class="fas fa-arrow-up"></i> Transactions</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <div>
+          <h2>Hello, <span id="username">Kitton</span></h2>
+        </div>
+        <div class="profile-menu">
+          <button class="import-btn" onclick="window.location.href='pdf-import.html'">
+            <i class="fas fa-file-import"></i>
+            Import Transactions
+          </button>
+          <button class="clear-btn" onclick="confirmClearTransactions()">
+            <i class="fas fa-trash-alt"></i>
+            Clear All
+          </button>
+          <div class="profile-icon" id="profileIcon">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="dropdown-item" id="darkModeToggle">
+              <i class="fas fa-moon"></i>
+              <span>Dark Mode</span>
+            </div>
+            <div class="dropdown-item" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overview Cards -->
+      <div class="overview">
+        <h3>Overview</h3>
+        <div class="overview-cards">
+          <div class="card balance-card">
+            <div class="card-content">
+              <i class="fas fa-wallet"></i>
+              <div class="card-text">
+                <h4 id="totalBalance">₹00</h4>
+                <p>Total Balance</p>
+              </div>
+            </div>
+          </div>
+          <div class="card expense-card">
+            <div class="card-content">
+              <i class="fas fa-arrow-down"></i>
+              <div class="card-text">
+                <h4 id="totalExpense">₹00</h4>
+                <p>Expense</p>
+              </div>
+            </div>
+          </div>
+          <div class="card income-card">
+            <div class="card-content">
+              <i class="fas fa-arrow-up"></i>
+              <div class="card-text">
+                <h4 id="totalIncome">₹00</h4>
+                <p>Income</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts">
+        <div class="chart-row">
+          <div class="chart-container">
+            <div class="loading-spinner">
+              <div class="spinner"></div>
+            </div>
+            <div class="chart-header">
+              <h4>Income Chart</h4>
+            </div>
+            <canvas id="incomeChart"></canvas>
+            <div class="chart-legend" id="incomeLegend"></div>
+          </div>
+          
+          <div class="chart-container">
+            <div class="loading-spinner">
+              <div class="spinner"></div>
+            </div>
+            <div class="chart-header">
+              <h4>Expense Chart</h4>
+            </div>
+            <canvas id="expenseChart"></canvas>
+            <div class="chart-legend" id="expenseLegend"></div>
+          </div>
+        </div>
+
+        <div class="chart-row">
+          <div class="chart-container">
+            <div class="loading-spinner">
+              <div class="spinner"></div>
+            </div>
+            <div class="chart-header">
+              <h4>Budget Comparison</h4>
+              <div class="chart-actions">
+                <select id="budgetTimeRange" class="chart-select">
+                  <option value="all">All Budgets</option>
+                </select>
+              </div>
+            </div>
+            <canvas id="budgetChart"></canvas>
+            <div class="chart-legend" id="budgetLegend"></div>
+          </div>
+          
+          <div class="chart-container">
+            <div class="loading-spinner">
+              <div class="spinner"></div>
+            </div>
+            <div class="chart-header">
+              <h4>Income vs. Expense Trend</h4>
+            </div>
+            <canvas id="expenseTrend"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Section -->
+      <div class="analytics-section">
+        <div class="chart-container">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+          </div>
+          <div class="chart-header">
+            <h4>Savings Rate</h4>
+          </div>
+          <canvas id="savingsRateChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+          </div>
+          <div class="chart-header">
+            <h4>Transaction Scatter</h4>
+          </div>
+          <canvas id="transactionScatter"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+          </div>
+          <div class="chart-header">
+            <h4>Expense Breakdown</h4>
+          </div>
+          <canvas id="expensePie"></canvas>
+          <div class="chart-legend" id="expensePieLegend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<!-- Then register the plugin before creating charts -->
+<script>
+    // Register the plugin globally
+    Chart.register(ChartDataLabels);
+</script>
+  <!-- Custom JS -->
+  <script>
+    window.addEventListener('storage', function() {
+      loadDashboardData();
+    });
+  </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const username = localStorage.getItem('username') || 'User';
+    document.getElementById('username').textContent = username;
+  });
+</script>
+
+  <script src="theme.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

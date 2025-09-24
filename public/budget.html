@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Budgets</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <img src="logoo.png" alt="Expense Ease Logo" class="sidebar-logo">
+        <span>Expense Ease</span>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="main.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="budget.html" class="active"><i class="fas fa-piggy-bank"></i> Budgets</a></li>
+          <li><a href="expense.html"><i class="fas fa-file-invoice-dollar"></i> Expenses</a></li>
+          <li><a href="transaction.html"><i class="fas fa-arrow-up"></i> Transactions</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <div>
+          <h1>My <span>Budgets</span></h1>
+        </div>
+        <div class="profile-menu">
+          <div class="profile-icon" id="profileIcon">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="dropdown-item" id="darkModeToggle">
+              <i class="fas fa-moon"></i>
+              <span>Dark Mode</span>
+            </div>
+            <div class="dropdown-item" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget List -->
+      <div class="budget-list" id="budgetCardsContainer">
+        <!-- Create New Budget Card -->
+        <div class="create-budget-card" id="createBudgetBtn">
+          <i class="fas fa-plus" style="opacity: 0.5;"></i>
+          <p>Create New Budget</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Container -->
+  <div id="customAlert" class="custom-alert">
+    <div class="custom-alert-content">
+      <p id="customAlertMessage"></p>
+      <button id="customAlertOk" class="custom-alert-btn">OK</button>
+    </div>
+  </div>
+  <!-- Budget Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <h2>Create New Budget</h2>
+      <form id="budgetForm">
+        <div class="form-group">
+          <label>Choose an Emoji</label>
+          <div class="emoji-selector">
+            <button type="button" class="emoji-picker-btn" id="openEmojiPicker">
+              <div class="emoji-display" id="selectedEmoji">😊</div>
+            </button>
+          </div>
+        </div>
+        <div class="emoji-picker-modal" id="emojiPickerModal">
+          <div class="emoji-picker-header">
+            <button style="margin-left: 280px;" class="close-emoji-picker" id="closeEmojiPicker">×</button>
+          </div>
+          <div class="emoji-categories">
+            <button class="active" data-category="smileys">Smileys & People</button>
+            <button data-category="animals">Animals & Nature</button>
+            <button data-category="food">Food & Drink</button>
+            <button data-category="activities">Activities</button>
+          </div>
+          <div class="emoji-grid" id="emojiGrid">
+            <!-- Emojis will be loaded here -->
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="budgetName">Budget Name</label>
+          <input type="text" id="budgetName" placeholder="Home Decor" required>
+        </div>
+        <div class="form-group">
+          <label for="budgetAmount">Budget Amount</label>
+          <input type="number" id="budgetAmount" placeholder="5000" required>
+        </div>
+      
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" id="cancelBtn">Cancel</button>
+          <button type="submit" class="create-btn">Create Budget</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="theme.js"></script>
+  <script src="budget.js"></script>
+</body>
+</html>

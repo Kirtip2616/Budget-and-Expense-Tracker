@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Data Entry Method - ExpenseWise</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .options-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .options-title {
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--text-color);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .option-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .option-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .option-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .option-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .option-button {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .option-button:hover {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="options-container">
+        <h1 class="options-title">Choose Your Data Entry Method</h1>
+        
+        <div class="options-grid">
+            <div class="option-card" onclick="window.location.href='pdf-import.html'">
+                <div class="option-icon">📄</div>
+                <h2 class="option-title">Import from PDF</h2>
+                <p class="option-description">Upload your bank statements or transaction logs in PDF format for quick and easy data import.</p>
+                <button class="option-button">Import PDF</button>
+            </div>
+
+            <div class="option-card" onclick="window.location.href='main.html'">
+                <div class="option-icon">✏️</div>
+                <h2 class="option-title">Manual Entry</h2>
+                <p class="option-description">Manually enter and manage your transactions with our user-friendly interface.</p>
+                <button class="option-button">Enter Manually</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if dark mode is enabled
+        function applyTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        // Apply theme on load
+        applyTheme();
+
+        // Listen for theme changes
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                applyTheme();
+            }
+        });
+    </script>
+</body>
+</html> 
