@@ -100,14 +100,19 @@ If you have suggestions or would like to collaborate, please open an Issue to di
 ## 🖼️ User Interface Design and Outputs
 - **🔐 Login Page**
   <img width="1916" height="906" alt="Image" src="https://github.com/user-attachments/assets/5b5bfc8f-38a6-4d72-9720-fced040869c0" />
+
 - **🏠 Dashboard**
 <img width="1897" height="976" alt="Image" src="https://github.com/user-attachments/assets/af57eef8-92bd-42e5-836f-5366f2a3d551" />
+
 - **📋 Budgets Section**
 <img width="1919" height="984" alt="Image" src="https://github.com/user-attachments/assets/6ad9fb55-5ff4-44b0-9b2e-44689057cd40" />
+
 - **📋 Expenses Listings**
  <img width="1904" height="977" alt="Image" src="https://github.com/user-attachments/assets/0798766b-70ac-4129-b75d-871dbb1a4c91" />
+
 - **📍 Transaction Details**
  <img width="1920" height="970" alt="Image" src="https://github.com/user-attachments/assets/fb40e7a8-1074-4809-a43f-d02850d6b389" />
+ 
 - **📍 Import Transactions Page**
  <img width="1898" height="892" alt="Image" src="https://github.com/user-attachments/assets/aa1d215b-5ae9-4654-b0ab-39cad626de4e" />
 
